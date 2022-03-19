@@ -165,71 +165,9 @@ const updateUser = catchAsync(async (req, res) => {
 
 const forgetPassword = catchAsync(async (req, res) => {
   console.log(req.body.email);
-  // const { error } = forgetPasswordValidation(req.body);
-  // if (error) return res.status(400).send(error.details[0].message);
-  if (!req.body.email) return res.status(400).send("email is required");
-  const userFromDB = await User.findOne({ email: req.body.email });
-  if (!userFromDB) return res.status(400).send("Email isn't registered ");
-
-  const verificationCode = nanoid(20);
-  const updatedUser = await User.updateOne(
-    { _id: userFromDB._id },
-    { $set: { activation_token: verificationCode } },
-    { upsert: true }
-  );
-
-  if (!updatedUser)
-    return res.status(500).send("Our server is down. try again letter");
-
-  forgotPasswordEmail(userFromDB.email, verificationCode);
-  res
-    .status(200)
-    .send(`Reset password has been sent to your email ${userFromDB.email}`);
 });
 const createNewPassword = catchAsync(async (req, res) => {
-  // const { error } = activateValidation(req.body);
-  // if (error) return res.status(400).send(error.details[0].message);
-  const request_token =
-    req.body.request_token || req.query.request_token || null;
-  const email = req.body.email || req.query.email || null;
-  const password = req.body.password || req.query.password || null;
-
-  if (!request_token || !email || !password)
-    return res
-      .status(400)
-      .send("all fields are required. email, password and request_token");
-
-  const userFromDB = await User.findOne({
-    email: req.body.email,
-  });
-  if (!userFromDB)
-    return res
-      .status(400)
-      .send("Invalid activation code, request password reset!");
-  console.log(request_token, userFromDB.activation_token, "compare token");
-  if (request_token !== userFromDB.activation_token)
-    return res.status(400).send("email and token mismactch");
-
-  // set password
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(req.body.password, salt);
-
-  const updatedUser = await User.updateOne(
-    { _id: userFromDB._id },
-    {
-      $set: {
-        password: hashedPassword,
-        activation_token: null,
-        status: "active",
-      },
-    },
-    { upsert: true }
-  );
-
-  if (!updatedUser)
-    return res.status(500).send("Our server is down. try again letter");
-
-  return res.status(200).send("Password has been changed");
+  console.log(req.body);
 });
 module.exports = {
   login,

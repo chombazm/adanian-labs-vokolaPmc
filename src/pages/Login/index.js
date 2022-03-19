@@ -1,33 +1,25 @@
-/*
-  This example requires Tailwind CSS v2.0+ 
-  
-  This example requires some changes to your config:
-  
-  ```
-  // tailwind.config.js
-  module.exports = {
-    // ...
-    plugins: [
-      // ...
-      require('@tailwindcss/forms'),
-    ],
-  }
-  ```
-*/
-import { Routes, Route, Link } from "react-router-dom";
-import { LockClosedIcon } from '@heroicons/react/solid'
+import { Routes, Route, Link, useNavigate } from "react-router-dom";
+import { LockClosedIcon } from "@heroicons/react/solid";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  loginStart,
+  loginSuccess,
+  loginFailure,
+} from "../../store/reducers/loginSlice";
+import { useAuth } from "../../hooks/useAuth";
+import * as api from "../../api/Auth";
+import { useSnackbar } from "notistack";
 
-export default function Example() {
+export default function LoginPage() {
+  const { enqueueSnackbar } = useSnackbar();
+  const { isLoadingLogin } = useSelector((state) => state.login);
+  const navigate = useNavigate();
+  // const [showPassword, setShowPassword] = useState(false);
+  const dispatch = useDispatch();
+
+  // const
   return (
     <>
-      {/*
-        This example requires updating your template:
-
-        ```
-        <html class="h-full bg-gray-50">
-        <body class="h-full">
-        ```
-      */}
       <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <div>
@@ -36,13 +28,18 @@ export default function Example() {
               src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
               alt="Workflow"
             />
-            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Login to your account</h2>
+            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+              Login to your account
+            </h2>
             <p className="mt-2 text-center text-sm text-gray-600">
-              {' '}
+              {" "}
               <Link to="/register">
-              <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
-                Don't have Account? Register
-              </a>
+                <a
+                  href="#"
+                  className="font-medium text-indigo-600 hover:text-indigo-500"
+                >
+                  Don't have Account? Register
+                </a>
               </Link>
             </p>
           </div>
@@ -87,21 +84,26 @@ export default function Example() {
                   type="checkbox"
                   className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                <label
+                  htmlFor="remember-me"
+                  className="ml-2 block text-sm text-gray-900"
+                >
                   Remember me
                 </label>
               </div>
-
-              
             </div>
 
             <div>
               <button
+                onClick={handleLogin}
                 type="submit"
                 className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                  <LockClosedIcon className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400" aria-hidden="true" />
+                  <LockClosedIcon
+                    className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400"
+                    aria-hidden="true"
+                  />
                 </span>
                 Login
               </button>
@@ -110,5 +112,5 @@ export default function Example() {
         </div>
       </div>
     </>
-  )
+  );
 }
