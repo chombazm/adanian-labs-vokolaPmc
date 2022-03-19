@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import { Routes, Route, Link, useNavigate } from "react-router-dom";
 import { LockClosedIcon } from "@heroicons/react/solid";
 import { useSelector, useDispatch } from "react-redux";
@@ -14,10 +15,41 @@ export default function LoginPage() {
   const { enqueueSnackbar } = useSnackbar();
   const { isLoadingLogin } = useSelector((state) => state.login);
   const navigate = useNavigate();
-  // const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const dispatch = useDispatch();
 
-  // const
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    dispatch(loginStart());
+    const credentials = { email, password };
+    console.log("login in", credentials);
+
+    try {
+      const data = await api.login({ email, password });
+      // login success call
+      const { tokens } = data;
+      console.log(data, "check for debug");
+      sessionStorage.setItem("access_token", data.token);
+      const user = {
+        user: data.user,
+        token: data.token,
+      };
+      localStorage.setItem("vokolapmc_user", JSON.stringify(user));
+      dispatch(loginSuccess(user.user));
+
+      enqueueSnackbar(`Welcome ${data.user.username}`, {
+        variant: "success",
+      });
+      // navigate("/dashboard/app", { replace: true });
+    } catch (error) {
+      dispatch(loginFailure(error.response.data.message));
+      enqueueSnackbar(`Opps! ${error.response.data.message}`, {
+        variant: "error",
+      });
+    }
+  };
+
   return (
     <>
       <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -43,7 +75,12 @@ export default function LoginPage() {
               </Link>
             </p>
           </div>
-          <form className="mt-8 space-y-6" action="#" method="POST">
+          <form
+            className="mt-8 space-y-6"
+            action="#"
+            method="POST"
+            onSubmit={handleLogin}
+          >
             <input type="hidden" name="remember" defaultValue="true" />
             <div className="rounded-md shadow-sm -space-y-px">
               <div>
@@ -56,6 +93,8 @@ export default function LoginPage() {
                   type="email"
                   autoComplete="email"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                   placeholder="Email address"
                 />
@@ -70,6 +109,8 @@ export default function LoginPage() {
                   type="password"
                   autoComplete="current-password"
                   required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                   placeholder="Password"
                 />

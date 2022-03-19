@@ -3,13 +3,14 @@ const connectDb = require("./config/db");
 const app = express();
 const PORT = process.env.PORT || 3001;
 const connectDB = require("./config/db");
+var cors = require("cors");
 
 // import routes
 const userRoutes = require("./routes/user");
 
 // midlewares
 app.use(express.json()); // parse json
-
+app.use(cors()); // allow cors
 //connect to db
 connectDB();
 
