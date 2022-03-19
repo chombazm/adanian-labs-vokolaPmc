@@ -3,6 +3,9 @@
 import { Fragment } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { BellIcon, MenuIcon, XIcon } from '@heroicons/react/outline'
+import { default as React, useEffect, useRef } from 'react';
+import EditorJS from '@editorjs/editorjs';
+import Header from '@editorjs/header'; 
 
 const user = {
   name: 'Tom Cook',
@@ -22,12 +25,68 @@ const userNavigation = [
   { name: 'Settings', href: '#' },
   { name: 'Sign out', href: '#' },
 ]
+const DEFAULT_INITIAL_DATA = () => {
+  return {
+    "time": new Date().getTime(),
+    "blocks": [
+      {
+        "type": "header",
+        "data": {
+          "text": "",
+          "level": 1
+        }
+      },
+    ]
+  }
+}
+
+const EDITTOR_HOLDER_ID = 'editorjs';
+
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
 export default function Example() {
+  const ejInstance = useRef();
+  const [editorData, setEditorData] = React.useState(DEFAULT_INITIAL_DATA);
+
+  // This will run only once
+  useEffect(() => {
+    if (!ejInstance.current) {
+      initEditor();
+    }
+    return () => {
+      ejInstance.current.destroy();
+      ejInstance.current = null;
+    }
+  }, []);
+
+  const initEditor = () => {
+    const editor = new EditorJS({
+      holder: EDITTOR_HOLDER_ID,
+      logLevel: "ERROR",
+      data: editorData,
+      onReady: () => {
+        ejInstance.current = editor;
+      },
+      onChange: async () => {
+        let content = await this.editorjs.saver.save();
+        // Put your logic here to save this data to your DB
+        setEditorData(content);
+      },
+      autofocus: true,
+      tools: { 
+        header: Header, 
+      }, 
+    });
+  };
+
+  const sendData = () => {
+    console.log('nice')
+  }
+
+
   return (
     <>
       {/*
@@ -195,9 +254,17 @@ export default function Example() {
           <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
             {/* Replace with your content */}
             <div className="px-4 py-6 sm:px-0">
-              <div className="border-4 border-dashed border-gray-200 rounded-lg h-96" />
+              <div className="border-4 border-dashed border-gray-200 rounded-lg h-96" >
+              <React.Fragment>
+      <div id={EDITTOR_HOLDER_ID}> </div>
+    </React.Fragment>
+              </div>
+              <button onClick={sendData}>
+  Activate Lasers
+</button>
             </div>
             {/* /End replace */}
+            
           </div>
         </main>
       </div>
