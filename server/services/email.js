@@ -11,7 +11,8 @@ const sendMail = (message) => {
       return 1;
     })
     .catch((error) => {
-      console.error(error);
+      console.log("cant send email");
+      console.log(error, "view email erro");
       return 0;
     });
 };
@@ -22,8 +23,13 @@ const registrationEmail = (req, token) => {
     text: `This email has been registered with vokolapmc. Please activate your email by clicking on this link: ${config.frontend.url}/activate/?token=${token}`,
     html: `This email has been registered with vokolapmc. Please verify your email by clicking on the link: <a href="${config.frontend.url}/activate/?token=${token}&email=${req.body.email}">Verify Email</a>`,
   };
+  // console.log(message, "message");
   // to, message, subject;
-  if (sendMail(message)) return 1;
+  if (sendMail(message)) {
+    return 1;
+  } else {
+    console.log("failed to send email");
+  }
 
   return 0;
 };

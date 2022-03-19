@@ -19,7 +19,6 @@ const register = (data) => {
       minDomainSegments: 2,
       tlds: { allow: ["com", "net"] },
     }),
-    password: Joi.string().required().default("123456").min(5).max(1024),
     status: Joi.string().default("pending verification"),
     activation_token: Joi.string(),
     date: Joi.date().default(Date.now),
@@ -28,7 +27,17 @@ const register = (data) => {
   return Schema.validate(data);
 };
 
+const activateAccount = (data) => {
+  const Schema = Joi.object({
+    email: Joi.string().required().email(),
+    activation_token: Joi.string().min(20).required(),
+    password: Joi.string().min(6).max(1024).required(),
+  });
+
+  return Schema.validate(data);
+};
 module.exports = {
   login,
   register,
+  activateAccount,
 };

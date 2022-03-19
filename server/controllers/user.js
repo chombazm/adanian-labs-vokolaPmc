@@ -4,7 +4,7 @@ const { nanoid } = require("nanoid");
 const User = require("../models/user");
 const catchAsync = require("../middlewares/catchAsync");
 const { userValidation } = require("../validation");
-
+const config = require("../config/config");
 const { registrationEmail, forgotPasswordEmail } = require("../services/email");
 
 const {
@@ -39,21 +39,17 @@ const login = catchAsync(async (req, res) => {
     if (!validPassword)
       return res.status(401).send({ message: "Credentials mismatch!" });
     console.log(user._id, "get user before signing token");
+
     //create json web token
     const token = jwt.sign({ _id: user._id }, config.jwt.tokenSecret);
-    // res.header('authorization-token', token).send(token);
+
     const sendUserData = {
       id: user._id,
-      firstname: user.firstname,
-      lastname: user.lastname,
+      username: user.username,
       email: user.email,
       dateRegistered: user.date,
-      v_guid: user.v_guid,
-      v_access_token: user.v_access_token,
-      v_reference: user.v_reference,
     };
     res.status(200).json({ user: sendUserData, token });
-    // res.status(200).send(token);
   }
 });
 
@@ -121,14 +117,15 @@ const requestVerification = catchAsync(async (req, res) => {
 });
 
 const activateUser = catchAsync(async (req, res) => {
-  const { error } = activateValidation(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  const { error } = userValidation.activateAccount(req.body);
+  if (error) return res.status(400).send({ message: error.details[0].message });
 
   const userFromDB = await User.findOne({ email: req.body.email });
-  if (!userFromDB) return res.status(400).send("Email isn't registered ");
+  if (!userFromDB)
+    return res.status(400).send({ message: "Email isn't registered" });
 
-  if (req.body.activation_code !== userFromDB.activation_token)
-    return res.status(400).send("email and token mismactch");
+  if (req.body.activation_token !== userFromDB.activation_token)
+    return res.status(400).send({ message: "email and token mismactch" });
 
   // set password
   const salt = await bcrypt.genSalt(10);
@@ -147,77 +144,21 @@ const activateUser = catchAsync(async (req, res) => {
   );
 
   if (!updatedUser)
-    return res.status(500).send("Our server is down. try again letter");
+    return res
+      .status(500)
+      .send({ message: "Our server is down. try again letter" });
 
-  const codeToAddToRefUser = nanoid(20);
+  const refetchUser = await User.findOne(
+    { email: req.body.email },
+    { password: 0 }
+  );
 
-  const url = "https://api.vitalsource.com/v3/users.xml";
-  const reference_user_id = `esiaccess_${userFromDB._id}`;
-  const xmlDataBodyReq = `<?xml version="1.0" encoding="UTF-8"?><user>
-	    <reference>${reference_user_id}</reference>
-	    <first-name>${userFromDB.firstname}</first-name>
-	    <last-name>${userFromDB.lastname}</last-name>
-        </user>	`;
-  var config = {
-    headers: {
-      "Content-Type": "text/xml",
-      "X-VitalSource-API-Key": config.vitalSource.apiKey,
-    },
-  };
-
-  const { data } = await axios.post(url, xmlDataBodyReq, config);
-
-  function parseXml(xml) {
-    return new Promise((resolve, reject) => {
-      parseString(xml, (err, result) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(result);
-        }
-      });
-    });
-  }
-  async function processResult(result) {
-    const addVitalsourceCredsToUser = await User.updateOne(
-      { _id: result.id },
-      {
-        $set: {
-          v_guid: result.guid,
-          v_access_token: result.accessToken,
-          v_reference: result.reference_user_id,
-        },
-      },
-      { upsert: true }
-    );
-  }
-  async function testXmlParse(xml, id, ref) {
-    try {
-      let result = await parseXml(xml);
-      // Clean data and fetch out what we need { email, firtstname, lastname, guid,   }
-      console.log(result, "vikali");
-      const cleanedResult = {
-        id: id,
-        email: result.user.email[0],
-        firstname: result.user["first-name"][0],
-        lastname: result.user["last-name"][0],
-        accessToken: result.user["access-token"][0],
-        reference_user_id: ref,
-        guid: result.user.guid[0],
-      };
-      processResult(cleanedResult);
-      // return res.json(cleanedResult);
-    } catch (err) {
-      console.error("parseXml failed: ", err);
-    }
-  }
-  const checkkers = await testXmlParse(data, userFromDB._id, reference_user_id);
-
-  //this is prolly not needed but will take a look later
-  const refetchUser = await User.findOne({ email: req.body.email });
-
-  return res.json(refetchUser);
+  return res.status(201).json({
+    message: "Account activated successfully",
+    user: refetchUser,
+  });
 });
+
 const updateUser = catchAsync(async (req, res) => {
   res.send(`Editing ${req.params.id}`);
 });
