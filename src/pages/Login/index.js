@@ -41,7 +41,7 @@ export default function LoginPage() {
       enqueueSnackbar(`Welcome ${data.user.username}`, {
         variant: "success",
       });
-      // navigate("/dashboard/app", { replace: true });
+      navigate("/dashboard", { replace: true });
     } catch (error) {
       dispatch(loginFailure(error.response.data.message));
       enqueueSnackbar(`Opps! ${error.response.data.message}`, {

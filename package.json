@@ -19,12 +19,12 @@
   },
   "homepage": "https://github.com/chombazm/adanian-labs-vokolaPmc#readme",
   "dependencies": {
+    "@editorjs/editorjs": "^2.23.2",
+    "@editorjs/header": "^2.6.2",
     "@headlessui/react": "^1.5.0",
     "@heroicons/react": "^1.0.6",
     "@material-ui/core": "^4.12.3",
     "@reduxjs/toolkit": "^1.8.0",
-    "@editorjs/editorjs": "^2.23.2",
-    "@editorjs/header": "^2.6.2",
     "@sendgrid/mail": "^7.6.2",
     "axios": "^0.26.1",
     "bcryptjs": "^2.4.3",
@@ -41,6 +41,7 @@
     "react-router-dom": "^6.2.2"
   },
   "devDependencies": {
+    "@editorjs/link": "^2.4.0",
     "autoprefixer": "^10.4.4",
     "nodemon": "^2.0.15",
     "parcel": "^2.3.2",
