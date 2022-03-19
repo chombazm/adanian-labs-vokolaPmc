@@ -1,0 +1,31 @@
+{
+  "name": "adaniunlabs",
+  "version": "1.0.0",
+  "description": "write documents with ease!",
+  "main": "index.js",
+  "scripts": {
+    "client": "parcel client/index.html",
+    "server-dev": "nodemon server/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chombazm/adanian-labs-vokolaPmc.git"
+  },
+  "author": "chomba, paul, mark",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chombazm/adanian-labs-vokolaPmc/issues"
+  },
+  "homepage": "https://github.com/chombazm/adanian-labs-vokolaPmc#readme",
+  "dependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.4",
+    "parcel": "^2.3.2",
+    "postcss": "^8.4.12",
+    "tailwindcss": "^3.0.23"
+  }
+}
