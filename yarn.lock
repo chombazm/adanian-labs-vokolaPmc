@@ -51,6 +51,11 @@
   dependencies:
     "@babel/runtime" "^7.10.2"
 
+"@editorjs/list@^1.7.0":
+  "integrity" "sha512-0k0RKbQqfV32u24UYHHz5mrmSu4wr246qqXBT7xQiS533Bfd4hzki6UGzvy4f275ULzi+egbjI3BXLkpoTh9iQ=="
+  "resolved" "https://registry.npmjs.org/@editorjs/list/-/list-1.7.0.tgz"
+  "version" "1.7.0"
+
 "@emotion/hash@^0.8.0":
   "integrity" "sha512-kBJtf7PH6aWwZ6fka3zQ0p6SBYzx4fl1LoZXE2RrnYST9Xljm7WfKJrU4g/Xr3Beg72MLrp1AWNUmuYJTL7Cow=="
   "resolved" "https://registry.npmjs.org/@emotion/hash/-/hash-0.8.0.tgz"

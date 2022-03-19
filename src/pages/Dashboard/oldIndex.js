@@ -5,7 +5,6 @@ import { BellIcon, MenuIcon, XIcon } from "@heroicons/react/outline";
 import { default as React, useEffect, useRef } from "react";
 import EditorJS from "@editorjs/editorjs";
 import Header from "@editorjs/header";
-import List from "@editorjs/list";
 
 const user = {
   name: "Tom Cook",
@@ -23,6 +22,22 @@ const userNavigation = [
   { name: "Settings", href: "#" },
   { name: "Sign out", href: "#" },
 ];
+const DEFAULT_INITIAL_DATA = () => {
+  return {
+    time: new Date().getTime(),
+    blocks: [
+      {
+        type: "header",
+        data: {
+          text: "",
+          level: 1,
+        },
+      },
+    ],
+  };
+};
+
+const EDITTOR_HOLDER_ID = "editorjs";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -30,25 +45,53 @@ function classNames(...classes) {
 
 export default function Example() {
   const ejInstance = useRef();
-  const [editorData, setEditorData] = React.useState("");
-  const [filename, setFilename] = React.useState("untitled");
+  const [editorData, setEditorData] = React.useState(DEFAULT_INITIAL_DATA);
 
-  const editor = new EditorJS({
-    holder: "editorjs",
-    data: {},
-    onReady: () => {
-      console.log("Editor.js is ready to work!");
-    },
-    tools: {
-      header: Header,
-      list: List,
-    },
-  });
   // This will run only once
-  useEffect(() => {}, []);
+  useEffect(() => {
+    if (!ejInstance.current) {
+      initEditor();
+    }
+    return () => {
+      ejInstance.current.destroy();
+      ejInstance.current = null;
+    };
+  }, []);
+
+  const initEditor = () => {
+    const editor = new EditorJS({
+      holder: EDITTOR_HOLDER_ID,
+      logLevel: "ERROR",
+      data: editorData,
+      onReady: () => {
+        ejInstance.current = editor;
+      },
+      onChange: async () => {
+        let content = await this.editorjs.saver.save();
+        // Put your logic here to save this data to your DB
+        setEditorData(content);
+      },
+      autofocus: true,
+      tools: {
+        header: Header,
+      },
+    });
+  };
+
+  const sendData = () => {
+    console.log("nice");
+  };
 
   return (
     <>
+      {/*
+        This example requires updating your template:
+
+        ```
+        <html class="h-full bg-gray-100">
+        <body class="h-full">
+        ```
+      */}
       <div className="min-h-full">
         <Disclosure as="nav" className="bg-gray-800">
           {({ open }) => (
@@ -222,19 +265,15 @@ export default function Example() {
           </div>
         </header>
         <main>
-          <div
-            className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8"
-            style={{ backgroundColor: "#f1f1f1" }}
-          >
+          <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
             {/* Replace with your content */}
             <div className="px-4 py-6 sm:px-0">
-              <div
-                className="border-gray-200 rounded-lg h-96 bg-white p-8"
-                id="editorjs"
-              >
-                <input type="text" placeholder="file name" value={filename} />
+              <div className="border-gray-200 rounded-lg h-96">
+                <React.Fragment>
+                  <div id={EDITTOR_HOLDER_ID}> </div>
+                </React.Fragment>
               </div>
-              <button>Save document</button>
+              <button onClick={sendData}>Activate Lasers</button>
             </div>
             {/* /End replace */}
           </div>
